@@ -1,0 +1,10 @@
+Style/Documentation:
+  Enabled: false
+Metrics/MethodLength:
+  Max: 15
+Metrics/BlockLength:
+  Enabled: false
+Style/FrozenStringLiteralComment:
+  Enabled: false
+AllCops:
+  SuggestExtensions: false
