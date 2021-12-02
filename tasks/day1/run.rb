@@ -14,7 +14,7 @@ module Tasks
       private
 
       def numbers
-        Inputs::NumberStream.new(INPUT_FILE_PATH).call
+        Input.call
       end
     end
   end
