@@ -1,5 +1,5 @@
 module Tasks
-  module Day3
+  module Day4
     class Input
       INPUT_FILE_PATH = "#{__dir__}/input.txt".freeze
 
