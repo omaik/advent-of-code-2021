@@ -5,7 +5,12 @@ module Tasks
 
       class << self
         def call
-          raw_input.split("\n")
+          game = raw_input.split("\n\n")
+          { turns: game.first.split(',').map(&:to_i),
+            boards: game[1..].map do |x|
+                      rows = x.split("\n").map { |x| x.split.map(&:to_i) }
+                      rows + rows.transpose
+                    end }
         end
 
         def raw_input
