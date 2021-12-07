@@ -1,11 +1,11 @@
 module Tasks
-  module Day7
+  module Day8
     class Input
       INPUT_FILE_PATH = "#{__dir__}/input.txt".freeze
 
       class << self
         def call
-          raw_input.split(',').map(&:to_i)
+          raw_input.split("\n")
         end
 
         def raw_input

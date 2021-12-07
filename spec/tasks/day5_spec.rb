@@ -6,6 +6,6 @@ describe Tasks::Day5::Run do
   end
 
   describe '#call2' do
-    it { expect(described_class.new.call2).to eq(19349) }
+    it { expect(described_class.new.call2).to eq(19_349) }
   end
 end
