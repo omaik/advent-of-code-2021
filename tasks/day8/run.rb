@@ -9,11 +9,12 @@ module Tasks
         input.map do |inp, out|
           out = out.map { |x| x.split('').sort.join }
           inp = inp.map { |x| x.split('').sort.join }
+
           store = { 1 => 2, 7 => 3, 4 => 4, 8 => 7 }.transform_values do |size|
             inp.detect { |x| x.size == size }
           end
 
-          SEGMENT_INDEXES.each do |n, checker|
+          DETECTION_RULES.each do |n, checker|
             store[n] = inp.detect { |x| checker.call(x, store) }
           end
 
@@ -23,7 +24,7 @@ module Tasks
 
       private
 
-      SEGMENT_INDEXES = {
+      DETECTION_RULES = {
         9 => lambda do |input, store|
           input.size == 6 && (input.chars - (store[7].chars | store[4].chars)).size == 1
         end,
