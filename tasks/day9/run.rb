@@ -34,7 +34,7 @@ module Tasks
       end
 
       def no_bigger?(inp, row_index, col_index)
-        adjacent_values = adjacent(row_index, col_index).map { |row, col| dig(row, col)}
+        adjacent_values = adjacent(row_index, col_index).map { |row, col| dig(row, col) }
 
         adjacent_values.compact.all? { |x| inp < x }
       end
