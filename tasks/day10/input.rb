@@ -6,7 +6,7 @@ module Tasks
 
       class << self
         def call
-          raw_input.split("\n")
+          raw_input.split("\n").map { |x| x.split('') }
         end
 
         def raw_input
