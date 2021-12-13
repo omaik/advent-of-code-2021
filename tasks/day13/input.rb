@@ -6,7 +6,12 @@ module Tasks
 
       class << self
         def call
-          raw_input.split("\n")
+          dots, fold_rules = raw_input.split("\n\n")
+
+          dots = dots.split("\n").map { |x| x.split(',').map(&:to_i) }
+          fold_rules = fold_rules.split("\n").map { |x| x.match(/(\w)=(\d+)/)[1..2] }
+
+          {dots: dots, fold_rules: fold_rules}
         end
 
         def raw_input
