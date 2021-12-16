@@ -4,14 +4,13 @@ module Tasks
     class Run
       def call1
         starting = [0, 0]
-        @final_pathes = []
         @known_shortest = {}
         @traverse_queue = [[starting, 0]]
 
-        while next_one = @traverse_queue.shift
+        while !@final && next_one = @traverse_queue.shift
           traverse(*next_one)
         end
-        @final_pathes.min
+        @final
       end
 
       def call2
@@ -42,11 +41,6 @@ module Tasks
       end
 
       def traverse(starting, sum)
-        if end?(starting)
-          @final_pathes << sum
-          return
-        end
-
         adjacent(*starting).select { |x| dig(*x) }.sort_by { |x| dig(*x) }.each do |point|
           distance = sum + dig(*point)
           next if @known_shortest.fetch(point, Float::INFINITY) <= distance
@@ -54,11 +48,12 @@ module Tasks
           @known_shortest[point] = distance
 
           if end?(point)
-            @final_pathes << distance
-            next
+            @final = distance
+            return
           end
 
-          @traverse_queue << [point, distance]
+          index_to_insert = @traverse_queue.index { |x| x[1] > distance } || -1
+          @traverse_queue.insert(index_to_insert, [point, distance])
         end
       end
 
