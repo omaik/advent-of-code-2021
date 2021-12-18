@@ -5,6 +5,7 @@ class Integer
 end
 
 
+
 module Tasks
   module Day18
     class God
@@ -29,25 +30,50 @@ module Tasks
         if child == @left
           # nothing
         else
-          @left.pushing_from_right(number)
+          @left.is_a?(Pair) ? @left.pushing_from_right(number) : @left += number
         end
       end
 
       def propagating_to_right(child, number)
         if child == @left
-          @right.pushing_from_left(number)
+          @right.is_a?(Pair) ? @right.pushing_from_left(number) : @right += number
         else
           # nothing
         end
       end
 
       def reduce
-        explode
+        loop do
+          if exp = explosive
+            p "EXPLODING"
+            p to_a
+            p exp
+            exp.explode
+            p to_a
+            registry.delete(exp)
+          elsif sp = splittable
+            p "SPLITTING"
+            p to_a
+            p sp
+            new_pair = sp.split
+            p new_pair
+            p to_a
+            registry.insert(registry.index(sp) + (sp.left == new_pair ? 1 : 2), new_pair)
+            p registry.to_a
+          else
+            break
+          end
+        end
+
+        self
       end
 
-      def explode
-        @registry.detect { |x| x.nesting == 4 }.explode
-        self
+      def explosive
+        @registry.detect { |x| x.nesting == 4 }
+      end
+
+      def splittable
+        @registry.detect { |x| (x.left.is_a?(Integer) && x.left >= 10) || (x.right.is_a?(Integer) && x.right >= 10 )}
       end
 
       def to_a
@@ -82,16 +108,18 @@ module Tasks
       end
 
       def propagating_to_left(child, number)
+        binding.pry if number == 1
         if child == @left
           parent.propagating_to_left(self, number)
         else
-          @left.pushing_from_right(number)
+          @left.is_a?(Pair) ? @left.pushing_from_right(number) : @left += number
         end
       end
 
       def propagating_to_right(child, number)
+        binding.pry if number == 1
         if child == @left
-          @right.pushing_from_left(number)
+          @right.is_a?(Pair) ? @right.pushing_from_left(number) : @right += number
         else
           @parent.propagating_to_right(self, number)
         end
@@ -127,6 +155,14 @@ module Tasks
 
       def inspect
         [@left, @right, @nesting]
+      end
+
+      def split
+        if @left.is_a?(Integer) && @left >= 10
+          @left = Pair.new([(@left / 2.0).floor, (@left / 2.0).ceil], nesting + 1, self)
+        else
+          @right = Pair.new([(@right / 2.0).floor, (@right / 2.0).ceil], nesting + 1, self)
+        end
       end
     end
   end

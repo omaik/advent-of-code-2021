@@ -6,7 +6,7 @@ module Tasks
 
       class << self
         def call
-          eval(raw_input)
+          raw_input.split("\n").map { |x| eval(x) }
         end
 
         def raw_input
