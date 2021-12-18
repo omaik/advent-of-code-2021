@@ -27,21 +27,14 @@ end
 module Tasks
   module Day18
     class God
-      attr_reader :registry, :left, :right, :nesting
+      attr_reader :left, :right, :nesting
 
       def initialize(array)
         @nesting = 0
         @left, @right = array
-        @registry = []
-
-        add_to_registry(self)
 
         @left = Pair.new(@left, 1, self) if @left.is_a?(Array)
         @right = Pair.new(@right, 1, self) if @right.is_a?(Array)
-      end
-
-      def add_to_registry(pair)
-        @registry << pair
       end
 
       def propagating_to_left(child, number)
@@ -60,10 +53,8 @@ module Tasks
         loop do
           if exp = explosive
             exp.explode
-            registry.delete(exp)
           elsif sp = splittable
             new_pair = sp.split
-            registry.insert(registry.index(sp) + (sp.left == new_pair ? 1 : 2), new_pair)
           else
             break
           end
@@ -101,7 +92,6 @@ module Tasks
         @nesting = nesting
         @parent = parent
 
-        parent.add_to_registry(self)
         @left = Pair.new(@left, nesting + 1, self) if @left.is_a?(Array)
         @right = Pair.new(@right, nesting + 1, self) if @right.is_a?(Array)
       end
@@ -116,10 +106,6 @@ module Tasks
         else
           @left.splittable || (@right >= 10 ? self : @right.splittable)
         end
-      end
-
-      def add_to_registry(el)
-        parent.add_to_registry(el)
       end
 
       def explode
@@ -182,7 +168,7 @@ module Tasks
         if @left == node
           @left = 0
           parent.propagating_to_left(self, node.left)
-          @right =  @right.pushing_from_left(node.right)
+          @right = @right.pushing_from_left(node.right)
         else
           @right = 0
           parent.propagating_to_right(self, node.right)
