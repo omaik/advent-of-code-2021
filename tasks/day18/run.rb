@@ -4,13 +4,15 @@ module Tasks
       def call1
         first = input.shift
 
-        input.inject(first) do |first, second|
-          p "Adding", first, second
-          p God.new([first, second]).reduce.to_a
-        end
+        God.new(input.inject(first) do |first, second|
+          God.new([first, second]).reduce.to_a
+        end).magnitude
       end
 
       def call2
+        input.permutation(2).map do |first, second|
+          God.new([first, second]).reduce.magnitude
+        end.max
       end
 
       private

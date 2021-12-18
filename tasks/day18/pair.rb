@@ -2,9 +2,27 @@ class Integer
   def to_a
     self
   end
+
+  def nesting
+    0
+  end
+
+  def magnitude
+    self
+  end
+
+  def pushing_from_left(number)
+    self + number
+  end
+
+  def pushing_from_right(number)
+    self + number
+  end
+
+  def detect_explosive; end
+
+  def splittable; end
 end
-
-
 
 module Tasks
   module Day18
@@ -27,39 +45,25 @@ module Tasks
       end
 
       def propagating_to_left(child, number)
-        if child == @left
-          # nothing
-        else
+        if child == @right
           @left.is_a?(Pair) ? @left.pushing_from_right(number) : @left += number
         end
       end
 
       def propagating_to_right(child, number)
         if child == @left
-          @right.is_a?(Pair) ? @right.pushing_from_left(number) : @right += number
-        else
-          # nothing
+          @right =  @right.pushing_from_left(number)
         end
       end
 
       def reduce
         loop do
           if exp = explosive
-            p "EXPLODING"
-            p to_a
-            p exp
             exp.explode
-            p to_a
             registry.delete(exp)
           elsif sp = splittable
-            p "SPLITTING"
-            p to_a
-            p sp
             new_pair = sp.split
-            p new_pair
-            p to_a
             registry.insert(registry.index(sp) + (sp.left == new_pair ? 1 : 2), new_pair)
-            p registry.to_a
           else
             break
           end
@@ -69,15 +73,23 @@ module Tasks
       end
 
       def explosive
-        @registry.detect { |x| x.nesting == 4 }
+        @left.detect_explosive || @right.detect_explosive
       end
 
       def splittable
-        @registry.detect { |x| (x.left.is_a?(Integer) && x.left >= 10) || (x.right.is_a?(Integer) && x.right >= 10 )}
+        if @left >= 10
+          self
+        else
+          @left.splittable || (@right >= 10 ? self : @right.splittable)
+        end
       end
 
       def to_a
         [@left.to_a, @right.to_a]
+      end
+
+      def magnitude
+        @left.magnitude * 3 + @right.magnitude * 2
       end
     end
 
@@ -94,6 +106,18 @@ module Tasks
         @right = Pair.new(@right, nesting + 1, self) if @right.is_a?(Array)
       end
 
+      def >=(_other)
+        false
+      end
+
+      def splittable
+        if @left >= 10
+          self
+        else
+          @left.splittable || (@right >= 10 ? self : @right.splittable)
+        end
+      end
+
       def add_to_registry(el)
         parent.add_to_registry(el)
       end
@@ -107,8 +131,11 @@ module Tasks
         [@left.to_a, @right.to_a]
       end
 
+      def magnitude
+        @left.magnitude * 3 + @right.magnitude * 2
+      end
+
       def propagating_to_left(child, number)
-        binding.pry if number == 1
         if child == @left
           parent.propagating_to_left(self, number)
         else
@@ -117,7 +144,6 @@ module Tasks
       end
 
       def propagating_to_right(child, number)
-        binding.pry if number == 1
         if child == @left
           @right.is_a?(Pair) ? @right.pushing_from_left(number) : @right += number
         else
@@ -131,6 +157,8 @@ module Tasks
         else
           @right += number
         end
+
+        self
       end
 
       def pushing_from_left(number)
@@ -139,13 +167,22 @@ module Tasks
         else
           @left += number
         end
+        self
+      end
+
+      def detect_explosive
+        return @left if @left.nesting == 4
+        return @left.detect_explosive if @left.detect_explosive
+        return @right if @right.nesting == 4
+
+        @right.detect_explosive
       end
 
       def exploding(node)
         if @left == node
           @left = 0
           parent.propagating_to_left(self, node.left)
-          @right.is_a?(Pair) ? @right.pushing_from_left(node.right) : @right += node.right
+          @right =  @right.pushing_from_left(node.right)
         else
           @right = 0
           parent.propagating_to_right(self, node.right)
