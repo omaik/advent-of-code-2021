@@ -2,21 +2,23 @@ module Tasks
   module Day22
     class Run
       def call1
-        x = Hash.new('off')
+        # x = Hash.new('off')
 
-        y = Hash.new { |h, k| h[k] = x.clone }
+        # y = Hash.new { |h, k| h[k] = x.clone }
 
-        world = Hash.new { |h, k| h[k] = y.clone }
+        # world = Hash.new { |h, k| h[k] = y.clone }
 
-        input.each.with_index do  |el, i|
-          el.z.each do |z_index|
-            el.y.each do |y_index|
-              world[z_index][y_index][el.x] = el.command
-            end
-          end
-        end
+        # input.each.with_index do  |el, _i|
+        #   el.z.each do |z_index|
+        #     el.y.each do |y_index|
+        #       el.x.each do |x_index|
+        #         world[z_index][y_index][x_index] = el.command
+        #       end
+        #     end
+        #   end
+        # end
 
-        world.values.map { |x| x.values.map(&:values) }.flatten.count('on')
+        # world.values.map { |x| x.values.map(&:values) }.flatten.count('on')
       end
 
       def call2
@@ -29,22 +31,30 @@ module Tasks
           end
         end
 
-        x = Hash.new('off')
 
-        y = Hash.new { |h, k| h[k] = x.clone }
-
-        world = Hash.new { |h, k| h[k] = y.clone }
+        join
 
 
-        @agg.each.with_index do |el, i|
-          el.z.each do |z_index|
-            el.y.each do |y_index|
-              world[z_index][y_index][el.x] = el.command
-            end
-          end
-        end
+        @agg.uniq.map { |x| x.x.size * x.y.size * x.z.size }.sum
 
-        world.values.map { |x| x.values.map(&:values) }.flatten.count('on')
+        # x = Hash.new('off')
+
+        # y = Hash.new { |h, k| h[k] = x.clone }
+
+        # world = Hash.new { |h, k| h[k] = y.clone }
+
+        # @agg.each.with_index do |el, i|
+        #   p i
+        #   el.z.each do |z_index|
+        #     el.y.each do |y_index|
+        #       el.x.each do |x_index|
+        #         world[z_index][y_index][x_index] = el.command
+        #       end
+        #     end
+        #   end
+        # end
+
+        # world.values.map { |x| x.values.map(&:values) }.flatten.count('on')
       end
 
       def split(el)
@@ -167,6 +177,8 @@ module Tasks
             new_agg << x1
             new_agg << x2
             new_agg << x3
+          else
+            binding.pry
           end
         end
 
@@ -227,12 +239,45 @@ module Tasks
             x3.no_y = false
 
             # p [x1, x2, x3]
-            # new_agg << x1
+            new_agg << x1
             # new_agg << x2
             new_agg << x3
+          else
+            binding.pry
           end
         end
         @agg = new_agg
+      end
+
+      def join
+        buf = []
+        i = 0
+        loop do
+          el1 = @agg.shift
+
+          buf << el1
+
+          overlapping_group = @agg.select { |x| x.overlap?(el1) }
+
+          old_agg = @agg - overlapping_group
+
+          @agg = overlapping_group
+
+          split(el1)
+
+          @agg = @agg + old_agg
+
+          if rand(1000) == 15
+            p @agg.size
+            p buf.size
+
+            p "----"
+          end
+
+          break if @agg.empty?
+        end
+
+        @agg = buf
       end
 
       private
